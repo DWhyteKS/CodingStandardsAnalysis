@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerShell Code Reviewer</title>
+    <!-- Link to our CSS file for styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Main container for the entire page -->
+    <div class="container">
+        <!-- Page header -->
+        <header>
+            <h1>PowerShell Code Reviewer</h1>
+            <p>Upload your PowerShell files for automated code review against coding standards</p>
+        </header>
+
+        <!-- Main content area -->
+        <main>
+            <!-- 
+            Flash messages section - shows success/error messages 
+            Flask's flash() function sends messages that display here
+            -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="messages">
+                        {% for category, message in messages %}
+                            <!-- Different CSS classes for different message types -->
+                            <div class="message {{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- 
+            File upload form 
+            - action="/upload" means form submits to /upload route
+            - method="post" because we're sending data
+            - enctype="multipart/form-data" required for file uploads
+            -->
+            <div class="upload-section">
+                <h2>Upload PowerShell File</h2>
+                <form action="/upload" method="post" enctype="multipart/form-data">
+                    
+                    <!-- File input field -->
+                    <div class="form-group">
+                        <label for="file">Choose PowerShell file (.ps1, .psm1, .psd1):</label>
+                        <input type="file" 
+                               id="file" 
+                               name="file" 
+                               accept=".ps1,.psm1,.psd1"
+                               required>
+                        <small>Maximum file size: 16MB</small>
+                    </div>
+                    
+                    <!-- Submit button -->
+                    <div class="form-group">
+                        <button type="submit" class="btn-primary">
+                            Review Code
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 
+            Results section - only shows when review_results exists
+            This section appears after a file has been processed 
+            -->
+            {% if review_results %}
+                <div class="results-section">
+                    <h2>Review Results</h2>
+                    
+                    <!-- Show the filename that was processed -->
+                    {% if filename %}
+                        <div class="filename">
+                            <strong>File processed:</strong> {{ filename }}
+                        </div>
+                    {% endif %}
+                    
+                    <!-- 
+                    Display the review results
+                    |safe filter tells Jinja2 to render HTML content 
+                    (needed for line breaks and formatting from the review)
+                    -->
+                    <div class="review-content">
+                        <pre>{{ review_results }}</pre>
+                    </div>
+                    
+                    <!-- Button to upload another file -->
+                    <div class="actions">
+                        <a href="/" class="btn-secondary">Review Another File</a>
+                    </div>
+                </div>
+            {% endif %}
+        </main>
+
+        <!-- Page footer -->
+        <footer>
+            <p>&copy; 2025 PowerShell Code Reviewer | 
+               <a href="/health">System Status</a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- 
+    Simple JavaScript for better user experience 
+    Shows loading message when form is submitted
+    -->
+    <script>
+        // Get references to form elements
+        const form = document.querySelector('form');
+        const submitButton = document.querySelector('.btn-primary');
+        const originalButtonText = submitButton.textContent;
+
+        // Add event listener for form submission
+        form.addEventListener('submit', function(e) {
+            // Change button text to show processing
+            submitButton.textContent = 'Processing...';
+            submitButton.disabled = true;
+            
+            // Optional: Reset button after 30 seconds in case of issues
+            setTimeout(function() {
+                submitButton.textContent = originalButtonText;
+                submitButton.disabled = false;
+            }, 30000);
+        });
+
+        // Add drag and drop functionality for better UX
+        const fileInput = document.getElementById('file');
+        const uploadSection = document.querySelector('.upload-section');
+
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadSection.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // Highlight drop area when item is dragged over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadSection.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadSection.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            uploadSection.classList.add('drag-over');
+        }
+
+        function unhighlight(e) {
+            uploadSection.classList.remove('drag-over');
+        }
+
+        // Handle dropped files
+        uploadSection.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+
+            if (files.length > 0) {
+                fileInput.files = files;
+            }
+        }
+    </script>
+</body>
+</html>

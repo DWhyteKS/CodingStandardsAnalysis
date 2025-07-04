@@ -1,0 +1,6 @@
+flask
+azure-storage-blob
+openai
+azure-identity
+werkzeug
+python-dotenv

@@ -10,7 +10,12 @@
 .terraformrc
 terraform.rc
 terraform.tfvars
-*.auto.tfvars
+*.auto.tfvar
+
+# Test Files
+TestCodingStandards.txt
+TestFail.ps1
+TestPass.ps1
 
 # Python files and directories
 __pycache__/
