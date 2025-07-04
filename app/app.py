@@ -70,7 +70,7 @@ def getCodingStandards():
         # Get reference to the standards container and blob
         blobClient = blobServiceClient.get_blob_client(
             container="powershell-standards", 
-            file="TestCodingStandards.txt"
+            blob="TestCodingStandards.txt"
         )
         
         # Download and return the content
