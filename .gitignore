@@ -143,3 +143,7 @@ ipython_config.py
 config/local.env
 config/dev.env
 config/prod.env
+
+terraform.tfvars
+*.tfvars
+*.auto.tfvars

@@ -57,3 +57,14 @@ variable "app_service_name" {
   type        = string
   default     = "app-powershell-reviewer"
 }
+
+variable "openai_deployment_name" {
+  description = "Name of the Azure OpenAI deployment/model to use"
+  type        = string
+  default     = "gpt-4.1-nano"
+}
+
+variable "flask_secret_key" {
+  description = "Secret key for Flask session management"
+  type        = string
+  sensitive   = true

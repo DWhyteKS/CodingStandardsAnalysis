@@ -146,9 +146,13 @@ resource "azurerm_linux_web_app" "main" {
     "DOCKER_REGISTRY_SERVER_URL"      = "https://${azurerm_container_registry.main.login_server}"
     "DOCKER_REGISTRY_SERVER_USERNAME" = azurerm_container_registry.main.admin_username
     "DOCKER_REGISTRY_SERVER_PASSWORD" = azurerm_container_registry.main.admin_password
-    "AZURE_STORAGE_CONNECTION_STRING" = azurerm_storage_account.main.primary_connection_string
-    "AZURE_OPENAI_ENDPOINT"           = azurerm_cognitive_account.openai.endpoint
+    "storageConnectionString"         = azurerm_storage_account.main.primary_connection_string
+    "openAIEndpoint"                  = azurerm_cognitive_account.openai.endpoint
+    "openAIKey"                       = azurerm_cognitive_account.openai.primary_access_key
+    "openAIDeploymentName"           = var.openai_deployment_name
     "KEY_VAULT_URL"                   = azurerm_key_vault.main.vault_uri
+    "FLASK_ENV"                       = var.environment == "prod" ? "production" : "development"
+    "SECRET_KEY"                      = var.flask_secret_key
   }
 
   tags = {
