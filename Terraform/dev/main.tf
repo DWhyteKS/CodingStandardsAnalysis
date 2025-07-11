@@ -11,3 +11,9 @@ module "powershell_reviewer" {
   app_service_plan_name   = "asp-powershell-reviewer-dev"
   flask_secret_key        = var.flask_secret_key
 }
+
+variable "flask_secret_key" {
+  description = "Secret key for Flask session management"
+  type        = string
+  sensitive   = true
+}

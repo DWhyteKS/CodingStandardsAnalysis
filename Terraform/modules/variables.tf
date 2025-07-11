@@ -68,3 +68,4 @@ variable "flask_secret_key" {
   description = "Secret key for Flask session management"
   type        = string
   sensitive   = true
+}
