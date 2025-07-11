@@ -24,7 +24,6 @@ from openai import AzureOpenAI
 # Configure logging to help with debugging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-logger.info(f"Starting application in {environment} environment")
 
 # Create Flask application instance
 app = Flask(__name__)
@@ -35,6 +34,7 @@ app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-producti
 
 # Get environment for logging/debugging
 environment = os.environ.get('ENVIRONMENT', 'dev')
+
 logger.info(f"Starting application in {environment} environment")
 
 # Configuration settings - try environment variables first, then defaults
