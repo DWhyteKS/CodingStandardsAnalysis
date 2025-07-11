@@ -1,5 +1,5 @@
 module "powershell_reviewer" {
-  source = "../../modules"
+  source = "../modules"
   
   environment              = "dev"
   resource_group_name      = "rg-powershell-reviewer-dev"
