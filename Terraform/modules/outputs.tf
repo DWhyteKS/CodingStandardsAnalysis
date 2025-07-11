@@ -50,3 +50,4 @@ output "openai_api_key" {
 output "app_service_url" {
   description = "URL of the deployed App Service"
   value       = "https://${azurerm_linux_web_app.main.default_hostname}"
+}
