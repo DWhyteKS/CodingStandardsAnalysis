@@ -35,6 +35,7 @@ app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-producti
 
 # Get environment for logging/debugging
 environment = os.environ.get('ENVIRONMENT', 'dev')
+logger.info(f"Starting application in {environment} environment")
 
 # Configuration settings - try environment variables first, then defaults
 # This allows the app to work locally and in Azure
