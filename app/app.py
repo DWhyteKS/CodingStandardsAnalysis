@@ -24,6 +24,7 @@ from openai import AzureOpenAI
 # Configure logging to help with debugging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+logger.info(f"Starting application in {environment} environment")
 
 # Create Flask application instance
 app = Flask(__name__)
@@ -32,10 +33,13 @@ app = Flask(__name__)
 # First try environment variable, then fall back to development key
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 
+# Get environment for logging/debugging
+environment = os.environ.get('ENVIRONMENT', 'dev')
+
 # Configuration settings - try environment variables first, then defaults
 # This allows the app to work locally and in Azure
-storageConnectionString = os.environ.get('storageConnectionString', '')
-openAIEndpoint = os.environ.get('openAIEndpoint', '')
+storageConnectionString = os.environ.get('AZURE_STORAGE_CONNECTION_STRING', '')
+openAIEndpoint = os.environ.get('AZURE_OPENAI_ENDPOINT', '')
 openAIKey = os.environ.get('openAIKey', '')
 openAIDeploymentName = os.environ.get('openAIDeploymentName', '')
 
@@ -243,6 +247,7 @@ def health_check():
     """
     return {
         'status': 'healthy',
+        'environment': environment,
         'has_openai_config': bool(openAIEndpoint and openAIKey),
         'has_storage_config': bool(storageConnectionString)
     }

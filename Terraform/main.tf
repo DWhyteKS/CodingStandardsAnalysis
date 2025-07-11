@@ -149,6 +149,7 @@ resource "azurerm_linux_web_app" "main" {
     "AZURE_STORAGE_CONNECTION_STRING" = azurerm_storage_account.main.primary_connection_string
     "AZURE_OPENAI_ENDPOINT"           = azurerm_cognitive_account.openai.endpoint
     "KEY_VAULT_URL"                   = azurerm_key_vault.main.vault_uri
+    "ENVIRONMENT"                     = var.environment
   }
 
   tags = {
