@@ -6,7 +6,7 @@ module "powershell_reviewer" {
   app_service_name         = "app-powershell-reviewer-prod"
   storage_account_name     = "stpwshreviewerprod"
   acr_name                 = "acrpowershellreviewerprod"
-  key_vault_name           = "kv-powershell-reviewer-prod"
+  key_vault_name           = "kv-pshell-reviewer-prod"
   openai_name              = "openai-powershell-reviewer-prod"
   app_service_plan_name    = "asp-powershell-reviewer-prod"
   flask_secret_key         = var.flask_secret_key
