@@ -1,0 +1,51 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy container app to Azure Web App - app-powershell-reviewer-dev
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: 'ubuntu-latest'
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to registry
+      uses: docker/login-action@v2
+      with:
+        registry: https://acrpowershellreviewerdev.azurecr.io/
+        username: ${{ secrets.AzureAppService_ContainerUsername_7227b5ee3e7749f78236d7b467232f34 }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_d9cb8a42f13e443c86c5099cc56b5b3b }}
+
+    - name: Build and push container image to registry
+      uses: docker/build-push-action@v3
+      with:
+        push: true
+        tags: acrpowershellreviewerdev.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_7227b5ee3e7749f78236d7b467232f34 }}/powershell-code-reviewer:${{ github.sha }}
+        file: ./Dockerfile
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: 'production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+    - name: Deploy to Azure Web App
+      id: deploy-to-webapp
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'app-powershell-reviewer-dev'
+        slot-name: 'production'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_997d8a791f3b46e5b1c0132699bce5ee }}
+        images: 'acrpowershellreviewerdev.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_7227b5ee3e7749f78236d7b467232f34 }}/powershell-code-reviewer:${{ github.sha }}'
