@@ -6,7 +6,7 @@ name: Build and deploy container app to Azure Web App - app-powershell-reviewer-
 on:
   push:
     branches:
-      - main
+      - develop
   workflow_dispatch:
 
 jobs:
