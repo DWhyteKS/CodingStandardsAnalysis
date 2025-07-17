@@ -1,149 +1,69 @@
 # PowerShell Code Reviewer - Git Ignore File
 
-# Terraform files and directories
-.terraform/
-.terraform.lock.hcl
-*.tfstate
-*.tfstate.*
-*.tfplan
-*.tfplan.*
-.terraformrc
-terraform.rc
-terraform.tfvars
-*.auto.tfvar
-
-# Test Files
-TestCodingStandards.txt
-TestFail.ps1
-TestPass.ps1
-
-# Python files and directories
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
+build/
+dist/
 
-# Flask specific
-instance/
-.webassets-cache
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
 
 # Environment variables
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
 *.env
 
-# Virtual environments
-venv/
-ENV/
-env/
-.venv/
+# Flask specific
+instance/
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
 
 # IDE and editor files
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
 
 # OS generated files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
-*.tmp
-
-# Log files
-*.log
-logs/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
 # Azure specific
 .azure/
+
+# Terraform files
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfplan.*
+terraform.tfvars
+*.auto.tfvars
 
 # File uploads (temporary files)
 uploads/
 temp/
 tmp/
 
-# Docker
-.dockerignore
+# Logs
+*.log
+logs/
 
-# Coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-cover/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# Backup files
-*.bak
-*.backup
-*.old
-
-# Compiled source
-*.com
-*.class
-*.dll
-*.exe
-*.o
-*.so
-
-# Packages
-*.7z
-*.dmg
-*.gz
-*.iso
-*.jar
-*.rar
-*.tar
-*.zip
-
-# Local configuration files that might contain secrets
-config/local.env
-config/dev.env
-config/prod.env
-
-terraform.tfvars
-*.tfvars
-*.auto.tfvars
+# Test files (if you create sample files for testing)
+TestCodingStandards.txt
+TestFail.ps1
+TestPass.ps1
