@@ -149,9 +149,10 @@ resource "azurerm_linux_web_app" "main" {
     "storageConnectionString"         = azurerm_storage_account.main.primary_connection_string
     "openAIEndpoint"                  = azurerm_cognitive_account.openai.endpoint
     "openAIKey"                       = azurerm_cognitive_account.openai.primary_access_key
-    "openAIDeploymentName"           = var.openai_deployment_name
+    "openAIDeploymentName"            = var.openai_deployment_name
     "KEY_VAULT_URL"                   = azurerm_key_vault.main.vault_uri
     "FLASK_ENV"                       = var.environment == "prod" ? "production" : "development"
+    "FLASK_HOST"                      = "0.0.0.0"
     "SECRET_KEY"                      = var.flask_secret_key
   }
 
