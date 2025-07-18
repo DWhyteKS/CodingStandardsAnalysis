@@ -1,0 +1,11 @@
+name: Pipeline Testing
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      run: echo "Hello"

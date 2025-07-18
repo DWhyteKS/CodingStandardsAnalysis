@@ -5,3 +5,4 @@ azure-identity
 werkzeug
 python-dotenv
 pytest==7.4.0
+bandit
