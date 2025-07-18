@@ -268,6 +268,11 @@ def internal_error(error):
 if __name__ == '__main__':
     # Get port from environment variable (for Azure deployment) or use 5000 for local
     port = int(os.environ.get('PORT', 5000))
+
+    if os.environ.get('WEBSITE_SITE_NAME'):
+        host = '0.0.0.0'  # Running in Azure App Service
+    else:
+        host = '127.0.0.1'  # Running locally
     
     # Run in debug mode locally, production mode in Azure
     debug_mode = os.environ.get('FLASK_ENV') == 'development'
