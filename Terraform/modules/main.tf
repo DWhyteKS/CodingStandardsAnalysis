@@ -97,6 +97,20 @@ resource "azurerm_key_vault" "main" {
   }
 }
 
+# Create Application Insights for monitoring
+resource "azurerm_application_insights" "main" {
+  name                = "ai-${var.app_service_name}"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  application_type    = "web"
+  retention_in_days   = 90
+
+  tags = {
+    Environment = var.environment
+    Project     = "PowerShell-Code-Reviewer"
+  }
+}
+
 # Get current client configuration
 data "azurerm_client_config" "current" {}
 
@@ -154,6 +168,8 @@ resource "azurerm_linux_web_app" "main" {
     "FLASK_ENV"                       = var.environment == "prod" ? "production" : "development"
     "FLASK_HOST"                      = "0.0.0.0"
     "SECRET_KEY"                      = var.flask_secret_key
+    "APPLICATIONINSIGHTS_CONNECTION_STRING" = azurerm_application_insights.main.connection_string
+    "APPINSIGHTS_INSTRUMENTATION_KEY"      = azurerm_application_insights.main.instrumentation_key
   }
 
   tags = {
