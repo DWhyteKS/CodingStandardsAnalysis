@@ -168,12 +168,12 @@ resource "azurerm_linux_web_app" "main" {
     "DOCKER_REGISTRY_SERVER_PASSWORD"       = azurerm_container_registry.main.admin_password
     "storageConnectionString"               = azurerm_storage_account.main.primary_connection_string
     "openAIEndpoint"                        = azurerm_cognitive_account.openai.endpoint
-    "openAIKey"                             = azurerm_cognitive_account.openai.primary_access_key
+    "openAIKey"                             = "@Microsoft.KeyVault(VaultName=${var.key_vault_name};SecretName=openai-api-key)"
     "openAIDeploymentName"                  = var.openai_deployment_name
     "KEY_VAULT_URL"                         = azurerm_key_vault.main.vault_uri
     "FLASK_ENV"                             = var.environment == "prod" ? "production" : "development"
     "FLASK_HOST"                            = "0.0.0.0"
-    "SECRET_KEY"                            = var.flask_secret_key
+    "SECRET_KEY"                            = "@Microsoft.KeyVault(VaultName=${var.key_vault_name};SecretName=flask-secret-key)"
     # "APPLICATIONINSIGHTS_CONNECTION_STRING" = azurerm_application_insights.main.connection_string
     # "APPINSIGHTS_INSTRUMENTATION_KEY"       = azurerm_application_insights.main.instrumentation_key
     "FEATURE_ENHANCED_ANALYSIS"             = var.environment == "prod" ? "true" : "false"
