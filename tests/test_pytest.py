@@ -1,5 +1,5 @@
 import pytest
-from app.app import app, allowedFile
+from app.app import app, allowedFile, get_secret_from_keyvault
 
 
 @pytest.fixture
@@ -17,11 +17,6 @@ def test_homepage_loads(client):
     response = client.get('/')
     assert response.status_code == 200
     assert b'PowerShell Code Reviewer' in response.data
-
-def test_keyvault_function_exists():
-    """Test that Key Vault function is available"""
-    from app.app import get_secret_from_keyvault
-    assert callable(get_secret_from_keyvault)
 
 
 def test_health_check(client):
