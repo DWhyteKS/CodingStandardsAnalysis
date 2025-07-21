@@ -52,14 +52,14 @@ output "app_service_url" {
   value       = "https://${azurerm_linux_web_app.main.default_hostname}"
 }
 
-output "application_insights_connection_string" {
-  description = "Connection string for Application Insights"
-  value       = azurerm_application_insights.main.connection_string
-  sensitive   = true
-}
+# output "application_insights_connection_string" {
+#   description = "Connection string for Application Insights"
+#   value       = azurerm_application_insights.main.connection_string
+#   sensitive   = true
+# }
 
-output "application_insights_instrumentation_key" {
-  description = "Instrumentation key for Application Insights"
-  value       = azurerm_application_insights.main.instrumentation_key
-  sensitive   = true
-}
+# output "application_insights_instrumentation_key" {
+#   description = "Instrumentation key for Application Insights"
+#   value       = azurerm_application_insights.main.instrumentation_key
+#   sensitive   = true
+# }

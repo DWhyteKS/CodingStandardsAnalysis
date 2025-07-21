@@ -70,6 +70,12 @@ maxFileSize = 16 * 1024 * 1024  # 16MB max file size
 app.config['uploadFolder'] = uploadFolder
 app.config['maxFileSize'] = maxFileSize
 
+# Feature toggle configuration
+def is_feature_enabled(feature_name):
+    """Check if a feature is enabled via environment variable"""
+    env_var = f"FEATURE_{feature_name.upper()}"
+    return os.environ.get(env_var, 'false').lower() == 'true'
+
 # Create upload directory if it doesn't exist
 os.makedirs(uploadFolder, exist_ok=True)
 
@@ -124,24 +130,49 @@ def review_powershell_code(code_content, standards):
             api_version="2024-02-01"
         )
         
-        # Prompt for AI service
-        prompt = f"""
-        Please review the following PowerShell code against these coding standards:
-        
-        CODING STANDARDS:
-        {standards}
-        
-        POWERSHELL CODE TO REVIEW:
-        {code_content}
-        
-        Please provide:
-        1. Overall assessment (Good/Needs Improvement/Poor)
-        2. Specific issues found
-        3. Recommendations for improvement
-        4. Compliments for good practice
-        
-        Format your response in clear sections.
-        """
+        if is_feature_enabled('enhanced_analysis'):
+            logger.info("Using enhanced analysis mode")
+            prompt = f"""
+            Please provide a comprehensive PowerShell code review with detailed analysis:
+            
+            CODING STANDARDS:
+            {standards}
+            
+            POWERSHELL CODE TO REVIEW:
+            {code_content}
+            
+            Please provide:
+            1. Overall assessment (Good/Needs Improvement/Poor)
+            2. Security analysis (potential vulnerabilities)
+            3. Performance recommendations
+            4. PowerShell best practices compliance
+            5. Specific issues found with line references where possible
+            6. Detailed recommendations for improvement
+            7. Compliments for good practices
+            8. Confirmation that you are using enhanced analysis in the production environment
+            
+            Format your response in clear sections with detailed explanations.
+            """
+        else:
+            logger.info("Using standard analysis mode")
+            prompt = f"""
+            Please review the following PowerShell code against these coding standards:
+            
+            CODING STANDARDS:
+            {standards}
+            
+            POWERSHELL CODE TO REVIEW:
+            {code_content}
+            
+            Please provide:
+            1. Overall assessment (Good/Needs Improvement/Poor)
+            2. Specific issues found
+            3. Recommendations for improvement
+            4. Compliments for good practice
+            5. Confirmation you are using standard analysis in the dev environment
+            
+            Format your response in clear sections.
+            """
         
         # Send request to OpenAI
         aiResponse = client.chat.completions.create(
@@ -251,7 +282,8 @@ def health_check():
         'status': 'healthy',
         'has_openai_config': bool(openAIEndpoint and openAIKey),
         'has_storage_config': bool(storageConnectionString),
-        'has_monitoring': bool(os.environ.get('APPLICATIONINSIGHTS_CONNECTION_STRING'))
+        'has_monitoring': bool(os.environ.get('APPLICATIONINSIGHTS_CONNECTION_STRING')),
+        'enhanced_analysis_enabled': is_feature_enabled('enhanced_analysis')
     }
     
     logger.info(f"Health check performed: {health_status}")
