@@ -98,6 +98,7 @@ resource "azurerm_key_vault" "main" {
 }
 
 # Create Application Insights for monitoring
+
 # resource "azurerm_application_insights" "main" {
 #   name                = "ai-${var.app_service_name}"
 #   location            = azurerm_resource_group.main.location
