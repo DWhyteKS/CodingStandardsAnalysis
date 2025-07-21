@@ -17,6 +17,8 @@ from opencensus.ext.flask.flask_middleware import FlaskMiddleware
 from opencensus.ext.azure.trace_exporter import AzureExporter
 from flask import Flask, render_template, request, flash, redirect, url_for
 from werkzeug.utils import secure_filename
+from azure.keyvault.secrets import SecretClient
+from azure.identity import DefaultAzureCredential
 import tempfile
 
 
@@ -33,7 +35,7 @@ app = Flask(__name__)
 
 # Set secret key for session management (used for flash messages)
 # First try environment variable, then fall back to development key
-app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+app.secret_key = get_secret_from_keyvault('flask-secret-key') or os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 
 # Configure Azure Application Insights monitoring
 connection_string = os.environ.get('APPLICATIONINSIGHTS_CONNECTION_STRING')
@@ -58,7 +60,7 @@ else:
 # This allows the app to work locally and in Azure
 storageConnectionString = os.environ.get('storageConnectionString', '')
 openAIEndpoint = os.environ.get('openAIEndpoint', '')
-openAIKey = os.environ.get('openAIKey', '')
+openAIKey = get_secret_from_keyvault('openai-api-key') or os.environ.get('openAIKey', '')
 openAIDeploymentName = os.environ.get('openAIDeploymentName', '')
 
 # File upload settings
@@ -75,6 +77,18 @@ def is_feature_enabled(feature_name):
     """Check if a feature is enabled via environment variable"""
     env_var = f"FEATURE_{feature_name.upper()}"
     return os.environ.get(env_var, 'false').lower() == 'true'
+
+def get_secret_from_keyvault(secret_name):
+    """Retrieve secret from Azure Key Vault"""
+    try:
+        key_vault_url = os.environ.get('KEY_VAULT_URL')
+        if key_vault_url:
+            credential = DefaultAzureCredential()
+            client = SecretClient(vault_url=key_vault_url, credential=credential)
+            return client.get_secret(secret_name).value
+    except Exception as e:
+        logger.warning(f"Could not retrieve {secret_name} from Key Vault: {e}")
+    return None
 
 # Create upload directory if it doesn't exist
 os.makedirs(uploadFolder, exist_ok=True)
