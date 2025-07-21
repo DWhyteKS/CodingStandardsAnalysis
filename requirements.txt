@@ -6,3 +6,4 @@ werkzeug
 python-dotenv
 pytest==7.4.0
 bandit
+opencensus-ext-azure==1.1.13
