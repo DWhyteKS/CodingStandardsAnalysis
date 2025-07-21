@@ -12,6 +12,9 @@ load_dotenv()
 
 import os
 import logging
+from opencensus.ext.azure.log_exporter import AzureLogHandler
+from opencensus.ext.flask.flask_middleware import FlaskMiddleware
+from opencensus.ext.azure.trace_exporter import AzureExporter
 from flask import Flask, render_template, request, flash, redirect, url_for
 from werkzeug.utils import secure_filename
 import tempfile
@@ -31,6 +34,25 @@ app = Flask(__name__)
 # Set secret key for session management (used for flash messages)
 # First try environment variable, then fall back to development key
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+
+# Configure Azure Application Insights monitoring
+connection_string = os.environ.get('APPLICATIONINSIGHTS_CONNECTION_STRING')
+if connection_string:
+    # Set up logging to Application Insights
+    logger = logging.getLogger(__name__)
+    logger.addHandler(AzureLogHandler(connection_string=connection_string))
+    logger.setLevel(logging.INFO)
+    
+    # Add request tracing middleware
+    middleware = FlaskMiddleware(
+        app,
+        exporter=AzureExporter(connection_string=connection_string)
+    )
+    
+    logger.info("Application Insights monitoring configured")
+else:
+    logger = logging.getLogger(__name__)
+    logger.info("Application Insights not configured - running without monitoring")
 
 # Configuration settings - try environment variables first, then defaults
 # This allows the app to work locally and in Azure
@@ -167,53 +189,42 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    """
-    Handle file upload and code review.
-    This route processes the uploaded PowerShell file and returns review results.
+    """Handle file upload and code review with monitoring"""
     
-    Flow:
-    1. Check if file was uploaded
-    2. Validate file type
-    3. Save file temporarily
-    4. Get coding standards
-    5. Send for review
-    6. Display results
-    
-    Returns:
-        Rendered HTML template with review results or error messages
-    """
     logger.info("File upload request received")
     
     # Check if the post request has the file part
     if 'file' not in request.files:
-        flash('No file selected for upload', 'error')
         logger.warning("No file in upload request")
+        flash('No file selected for upload', 'error')
         return redirect(url_for('index'))
     
     file = request.files['file']
     
     # Check if user actually selected a file
     if file.filename == '':
-        flash('No file selected for upload', 'error')
         logger.warning("Empty filename in upload request")
+        flash('No file selected for upload', 'error')
         return redirect(url_for('index'))
     
     # Check if file type is allowed
     if not allowedFile(file.filename):
-        flash('Invalid file type. Please upload PowerShell files (.ps1, .psm1, .psd1)', 'error')
         logger.warning(f"Invalid file type uploaded: {file.filename}")
+        flash('Invalid file type. Please upload PowerShell files (.ps1, .psm1, .psd1)', 'error')
         return redirect(url_for('index'))
     
     try:
         # Read the file content
         file_content = file.read().decode('utf-8')
-        logger.info(f"Successfully read file: {file.filename}")
+        logger.info(f"Successfully read file: {file.filename}, size: {len(file_content)} characters")
         
         # Get coding standards (from Azure Storage or local file)
         standards = getCodingStandards()
         
         # Send code for review (using Azure OpenAI or mock review)
+        logger.info("Starting code review process")
         review_results = review_powershell_code(file_content, standards)
+        logger.info("Code review completed successfully")
         
         # Render results page with the review
         return render_template('upload.html', 
@@ -222,30 +233,29 @@ def upload_file():
                              success=True)
         
     except UnicodeDecodeError:
-        flash('Error reading file. Please ensure it is a valid text file.', 'error')
         logger.error(f"Unicode decode error for file: {file.filename}")
+        flash('Error reading file. Please ensure it is a valid text file.', 'error')
         return redirect(url_for('index'))
         
     except Exception as e:
-        flash(f'Error processing file: {str(e)}', 'error')
         logger.error(f"Error processing upload: {str(e)}")
+        flash(f'Error processing file: {str(e)}', 'error')
         return redirect(url_for('index'))
 
 
 @app.route('/health')
 def health_check():
-    """
-    Health check endpoint for monitoring.
-    Used by Azure App Service and monitoring tools to check if app is running.
+    """Health check endpoint for monitoring with Application Insights logging"""
     
-    Returns:
-        JSON response with application status
-    """
-    return {
+    health_status = {
         'status': 'healthy',
         'has_openai_config': bool(openAIEndpoint and openAIKey),
-        'has_storage_config': bool(storageConnectionString)
+        'has_storage_config': bool(storageConnectionString),
+        'has_monitoring': bool(os.environ.get('APPLICATIONINSIGHTS_CONNECTION_STRING'))
     }
+    
+    logger.info(f"Health check performed: {health_status}")
+    return health_status
 
 
 # Error handlers to provide user-friendly error pages
