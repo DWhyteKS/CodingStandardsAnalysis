@@ -149,6 +149,11 @@ resource "azurerm_linux_web_app" "main" {
   location            = azurerm_service_plan.main.location
   service_plan_id     = azurerm_service_plan.main.id
 
+  identity {
+    type = "SystemAssigned"
+  }
+
+
   site_config {
     application_stack {
       docker_image     = "${azurerm_container_registry.main.login_server}/powershell-code-reviewer"
