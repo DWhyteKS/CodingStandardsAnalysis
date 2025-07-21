@@ -284,6 +284,7 @@ def health_check():
         'has_storage_config': bool(storageConnectionString),
         'has_monitoring': bool(os.environ.get('APPLICATIONINSIGHTS_CONNECTION_STRING')),
         'enhanced_analysis_enabled': is_feature_enabled('enhanced_analysis')
+
     }
     
     logger.info(f"Health check performed: {health_status}")

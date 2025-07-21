@@ -63,3 +63,4 @@ output "app_service_url" {
 #   value       = azurerm_application_insights.main.instrumentation_key
 #   sensitive   = true
 # }
+
