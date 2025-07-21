@@ -1,5 +1,5 @@
 import pytest
-from app.app import app, allowedFile, get_secret_from_keyvault
+from app.app import app, allowedFile
 
 
 @pytest.fixture

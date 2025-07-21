@@ -26,6 +26,18 @@ import tempfile
 from azure.storage.blob import BlobServiceClient
 from openai import AzureOpenAI
 
+def get_secret_from_keyvault(secret_name):
+    """Retrieve secret from Azure Key Vault"""
+    try:
+        key_vault_url = os.environ.get('KEY_VAULT_URL')
+        if key_vault_url:
+            credential = DefaultAzureCredential()
+            client = SecretClient(vault_url=key_vault_url, credential=credential)
+            return client.get_secret(secret_name).value
+    except Exception as e:
+        logger.warning(f"Could not retrieve {secret_name} from Key Vault: {e}")
+    return None
+
 # Configure logging to help with debugging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -77,18 +89,6 @@ def is_feature_enabled(feature_name):
     """Check if a feature is enabled via environment variable"""
     env_var = f"FEATURE_{feature_name.upper()}"
     return os.environ.get(env_var, 'false').lower() == 'true'
-
-def get_secret_from_keyvault(secret_name):
-    """Retrieve secret from Azure Key Vault"""
-    try:
-        key_vault_url = os.environ.get('KEY_VAULT_URL')
-        if key_vault_url:
-            credential = DefaultAzureCredential()
-            client = SecretClient(vault_url=key_vault_url, credential=credential)
-            return client.get_secret(secret_name).value
-    except Exception as e:
-        logger.warning(f"Could not retrieve {secret_name} from Key Vault: {e}")
-    return None
 
 # Create upload directory if it doesn't exist
 os.makedirs(uploadFolder, exist_ok=True)
