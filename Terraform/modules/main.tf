@@ -170,7 +170,7 @@ resource "azurerm_linux_web_app" "main" {
     "SECRET_KEY"                            = var.flask_secret_key
     # "APPLICATIONINSIGHTS_CONNECTION_STRING" = azurerm_application_insights.main.connection_string
     # "APPINSIGHTS_INSTRUMENTATION_KEY"       = azurerm_application_insights.main.instrumentation_key
-    "FEATURE_ENHANCED_ANALYSIS"             = var.environment == "dev" ? "true" : "false"
+    "FEATURE_ENHANCED_ANALYSIS"             = var.environment == "prod" ? "true" : "false"
   }
 
   tags = {
