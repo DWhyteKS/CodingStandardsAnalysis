@@ -224,6 +224,7 @@ resource "azurerm_key_vault_secret" "flask_secret" {
   key_vault_id = azurerm_key_vault.main.id
 
   depends_on = [azurerm_key_vault.main]
+
 }
 
 resource "azurerm_key_vault_access_policy" "app_service" {
