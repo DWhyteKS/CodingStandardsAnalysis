@@ -183,7 +183,7 @@ resource "azurerm_linux_web_app" "main" {
     "DOCKER_REGISTRY_SERVER_USERNAME"       = azurerm_container_registry.main.admin_username
     "DOCKER_REGISTRY_SERVER_PASSWORD"       = azurerm_container_registry.main.admin_password
     "storageConnectionString"               = azurerm_storage_account.main.primary_connection_string
-    "openAIEndpoint"                        = azurerm_cognitive_account.openai.endpoint
+    "openAIEndpoint"                        = "${azurerm_cognitive_account.openai.endpoint}openai/"
     "openAIKey"                             = "@Microsoft.KeyVault(VaultName=${var.key_vault_name};SecretName=openai-api-key)"
     "openAIDeploymentName"                  = var.openai_deployment_name
     "KEY_VAULT_URL"                         = azurerm_key_vault.main.vault_uri
@@ -201,6 +201,14 @@ resource "azurerm_linux_web_app" "main" {
   }
 }
 
+# Wait for the App Service to be fully created and get its identity
+data "azurerm_linux_web_app" "main" {
+  name                = azurerm_linux_web_app.main.name
+  resource_group_name = azurerm_resource_group.main.name
+  
+  depends_on = [azurerm_linux_web_app.main]
+}
+
 # Store OpenAI key in Key Vault
 resource "azurerm_key_vault_secret" "openai_key" {
   name         = "openai-api-key"
@@ -210,25 +218,29 @@ resource "azurerm_key_vault_secret" "openai_key" {
   depends_on = [azurerm_key_vault.main]
 }
 
-resource "azurerm_key_vault_access_policy" "app_service" {
-  key_vault_id = azurerm_key_vault.main.id
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = azurerm_linux_web_app.main.identity[0].principal_id
-
-  secret_permissions = [
-    "Get",
-    "List"
-  ]
-
-  depends_on = [azurerm_linux_web_app.main]
-}
-
 resource "azurerm_key_vault_secret" "flask_secret" {
   name         = "flask-secret-key"
   value        = var.flask_secret_key
   key_vault_id = azurerm_key_vault.main.id
 
   depends_on = [azurerm_key_vault.main]
+}
+
+resource "azurerm_key_vault_access_policy" "app_service" {
+  key_vault_id = azurerm_key_vault.main.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = data.azurerm_linux_web_app.main.identity[0].principal_id
+
+  secret_permissions = [
+    "Get",
+    "List"
+  ]
+
+  depends_on = [
+    azurerm_linux_web_app.main,
+    azurerm_key_vault_secret.openai_key,
+    azurerm_key_vault_secret.flask_secret
+    ]
 }
 
 data "azurerm_key_vault_secret" "admin_email" {
