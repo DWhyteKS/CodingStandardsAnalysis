@@ -97,20 +97,36 @@ resource "azurerm_key_vault" "main" {
   }
 }
 
+# Create Log Analytics Workspace for Application Insights
+
+resource "azurerm_log_analytics_workspace" "main" {
+  name                = "law-${var.app_service_name}"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+
+  tags = {
+    Environment = var.environment
+    Project     = "PowerShell-Code-Reviewer"
+  }
+}
+
 # Create Application Insights for monitoring
 
-# resource "azurerm_application_insights" "main" {
-#   name                = "ai-${var.app_service_name}"
-#   location            = azurerm_resource_group.main.location
-#   resource_group_name = azurerm_resource_group.main.name
-#   application_type    = "web"
-#   retention_in_days   = 90
+resource "azurerm_application_insights" "main" {
+  name                = "ai-${var.app_service_name}"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  workspace_id        = azurerm_log_analytics_workspace.main.id
+  application_type    = "web"
+  retention_in_days   = 90
 
-#   tags = {
-#     Environment = var.environment
-#     Project     = "PowerShell-Code-Reviewer"
-#   }
-# }
+  tags = {
+    Environment = var.environment
+    Project     = "PowerShell-Code-Reviewer"
+  }
+}
 
 # Get current client configuration
 data "azurerm_client_config" "current" {}
@@ -174,8 +190,8 @@ resource "azurerm_linux_web_app" "main" {
     "FLASK_ENV"                             = var.environment == "prod" ? "production" : "development"
     "FLASK_HOST"                            = "0.0.0.0"
     "SECRET_KEY"                            = "@Microsoft.KeyVault(VaultName=${var.key_vault_name};SecretName=flask-secret-key)"
-    # "APPLICATIONINSIGHTS_CONNECTION_STRING" = azurerm_application_insights.main.connection_string
-    # "APPINSIGHTS_INSTRUMENTATION_KEY"       = azurerm_application_insights.main.instrumentation_key
+    "APPLICATIONINSIGHTS_CONNECTION_STRING" = azurerm_application_insights.main.connection_string
+    "APPINSIGHTS_INSTRUMENTATION_KEY"       = azurerm_application_insights.main.instrumentation_key
     "FEATURE_ENHANCED_ANALYSIS"             = var.environment == "prod" ? "true" : "false"
   }
 
@@ -213,4 +229,119 @@ resource "azurerm_key_vault_secret" "flask_secret" {
   key_vault_id = azurerm_key_vault.main.id
 
   depends_on = [azurerm_key_vault.main]
+
+}
+
+data "azurerm_key_vault_secret" "admin_email" {
+  name         = "admin-email"
+  key_vault_id = azurerm_key_vault.main.id
+  
+  depends_on = [azurerm_key_vault.main]
+}
+
+# Action Group for alert notifications
+resource "azurerm_monitor_action_group" "main" {
+  name                = "ag-${var.app_service_name}"
+  resource_group_name = azurerm_resource_group.main.name
+  short_name          = "psreview"
+
+  email_receiver {
+    name          = "admin-email"
+    email_address = data.azurerm_key_vault_secret.admin_email.value
+  }
+
+  tags = {
+    Environment = var.environment
+    Project     = "PowerShell-Code-Reviewer"
+  }
+}
+
+# Alert 1: High HTTP Response Time
+resource "azurerm_monitor_metric_alert" "response_time" {
+  name                = "alert-response-time-${var.environment}"
+  resource_group_name = azurerm_resource_group.main.name
+  scopes              = [azurerm_application_insights.main.id]
+  description         = "Alert when average response time exceeds 5 seconds"
+  severity            = 2
+  frequency           = "PT1M"
+  window_size         = "PT5M"
+
+  criteria {
+    metric_namespace = "microsoft.insights/components"
+    metric_name      = "requests/duration"
+    aggregation      = "Average"
+    operator         = "GreaterThan"
+    threshold        = 5000 # 5 seconds in milliseconds
+  }
+
+  action {
+    action_group_id = azurerm_monitor_action_group.main.id
+  }
+
+  depends_on = [azurerm_monitor_action_group.main]
+
+  tags = {
+    Environment = var.environment
+    Project     = "PowerShell-Code-Reviewer"
+  }
+}
+
+# Alert 2: High HTTP Error Rate
+resource "azurerm_monitor_metric_alert" "error_rate" {
+  name                = "alert-error-rate-${var.environment}"
+  resource_group_name = azurerm_resource_group.main.name
+  scopes              = [azurerm_application_insights.main.id]
+  description         = "Alert when HTTP error rate exceeds 10%"
+  severity            = 1
+  frequency           = "PT1M"
+  window_size         = "PT5M"
+
+  criteria {
+    metric_namespace = "microsoft.insights/components"
+    metric_name      = "requests/failed"
+    aggregation      = "Count"
+    operator         = "GreaterThan"
+    threshold        = 10 # 10% error rate
+  }
+
+  action {
+    action_group_id = azurerm_monitor_action_group.main.id
+  }
+
+  depends_on = [azurerm_monitor_action_group.main]
+
+  tags = {
+    Environment = var.environment
+    Project     = "PowerShell-Code-Reviewer"
+  }
+}
+
+# Alert 3: Storage Account Availability
+resource "azurerm_monitor_metric_alert" "storage_availability" {
+  name                = "alert-storage-availability-${var.environment}"
+  resource_group_name = azurerm_resource_group.main.name
+  scopes              = [azurerm_storage_account.main.id]
+  description         = "Alert when storage account availability drops"
+  severity            = 1
+  frequency           = "PT5M"
+  window_size         = "PT15M"
+
+  criteria {
+    metric_namespace = "Microsoft.Storage/storageAccounts"
+    metric_name      = "Availability"
+    aggregation      = "Average"
+    operator         = "LessThan"
+    threshold        = 95 # Less than 95% availability
+  }
+
+  action {
+    action_group_id = azurerm_monitor_action_group.main.id
+  }
+
+  depends_on = [azurerm_monitor_action_group.main]
+
+  tags = {
+    Environment = var.environment
+    Project     = "PowerShell-Code-Reviewer"
+  }
 }
