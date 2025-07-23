@@ -127,7 +127,7 @@ def review_powershell_code(code_content, standards):
         client = AzureOpenAI(
             azure_endpoint=openAIEndpoint,
             api_key=openAIKey,
-            api_version="2024-02-01"
+            api_version="2025-01-01-preview"
         )
         
         if is_feature_enabled('enhanced_analysis'):
