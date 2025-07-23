@@ -249,6 +249,14 @@ data "azurerm_key_vault_secret" "admin_email" {
   key_vault_id = azurerm_key_vault.main.id
   
   depends_on = [azurerm_key_vault.main]
+
+}
+
+data "azurerm_key_vault_secret" "admin_email" {
+  name         = "admin-email"
+  key_vault_id = azurerm_key_vault.main.id
+  
+  depends_on = [azurerm_key_vault.main]
 }
 
 # Action Group for alert notifications
