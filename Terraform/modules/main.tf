@@ -183,7 +183,7 @@ resource "azurerm_linux_web_app" "main" {
     "DOCKER_REGISTRY_SERVER_USERNAME"       = azurerm_container_registry.main.admin_username
     "DOCKER_REGISTRY_SERVER_PASSWORD"       = azurerm_container_registry.main.admin_password
     "storageConnectionString"               = azurerm_storage_account.main.primary_connection_string
-    "openAIEndpoint"                        = "${azurerm_cognitive_account.openai.endpoint}openai/"
+    "openAIEndpoint"                        = azurerm_cognitive_account.openai.endpoint
     "openAIKey"                             = "@Microsoft.KeyVault(VaultName=${var.key_vault_name};SecretName=openai-api-key)"
     "openAIDeploymentName"                  = var.openai_deployment_name
     "KEY_VAULT_URL"                         = azurerm_key_vault.main.vault_uri
