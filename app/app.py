@@ -33,7 +33,7 @@ app = Flask(__name__)
 
 # Set secret key for session management (used for flash messages)
 # First try environment variable, then fall back to development key
-app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+app.secret_key = app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 
 # Configure Azure Application Insights monitoring
 connection_string = os.environ.get('APPLICATIONINSIGHTS_CONNECTION_STRING')

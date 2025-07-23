@@ -229,6 +229,7 @@ resource "azurerm_key_vault_secret" "flask_secret" {
   key_vault_id = azurerm_key_vault.main.id
 
   depends_on = [azurerm_key_vault.main]
+
 }
 
 data "azurerm_key_vault_secret" "admin_email" {
