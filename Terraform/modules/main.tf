@@ -242,13 +242,6 @@ resource "azurerm_key_vault_access_policy" "app_service" {
     azurerm_key_vault_secret.openai_key,
     azurerm_key_vault_secret.flask_secret
     ]
-}
-
-data "azurerm_key_vault_secret" "admin_email" {
-  name         = "admin-email"
-  key_vault_id = azurerm_key_vault.main.id
-  
-  depends_on = [azurerm_key_vault.main]
 
 }
 

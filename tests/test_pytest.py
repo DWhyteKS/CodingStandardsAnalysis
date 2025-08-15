@@ -1,5 +1,5 @@
 import pytest
-from app.app import app, allowedFile
+from app.app import app, allowed_file
 
 
 @pytest.fixture
@@ -34,19 +34,19 @@ def test_upload_no_file(client):
 # Function tests  
 def test_allowed_file_ps1():
     """Test .ps1 files are allowed"""
-    assert allowedFile('test.ps1') == True
+    assert allowed_file('test.ps1') == True
 
 
 def test_allowed_file_psm1():
     """Test .psm1 files are allowed"""
-    assert allowedFile('test.psm1') == True
+    assert allowed_file('test.psm1') == True
 
 
 def test_allowed_file_txt_not_allowed():
     """Test .txt files are not allowed"""
-    assert allowedFile('test.txt') == False
+    assert allowed_file('test.txt') == False
 
 
 def test_allowed_file_no_extension():
     """Test files without extension are not allowed"""
-    assert allowedFile('testfile') == False
+    assert allowed_file('testfile') == False
