@@ -242,6 +242,7 @@ resource "azurerm_key_vault_access_policy" "app_service" {
     azurerm_key_vault_secret.openai_key,
     azurerm_key_vault_secret.flask_secret
     ]
+
 }
 
 data "azurerm_key_vault_secret" "admin_email" {
