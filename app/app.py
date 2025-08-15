@@ -56,19 +56,19 @@ else:
 
 # Configuration settings - try environment variables first, then defaults
 # This allows the app to work locally and in Azure
-storageConnectionString = os.environ.get('storageConnectionString', '')
-openAIEndpoint = os.environ.get('openAIEndpoint', '')
-openAIKey = os.environ.get('openAIKey', '')
-openAIDeploymentName = os.environ.get('openAIDeploymentName', '')
+storage_connection_string = os.environ.get('storageConnectionString', '')
+open_ai_endpoint = os.environ.get('openAIEndpoint', '')
+open_ai_key = os.environ.get('openAIKey', '')
+open_ai_deployment_name = os.environ.get('openAIDeploymentName', '')
 
 # File upload settings
-uploadFolder = 'uploads'
-allowedFileTypes = {'ps1', 'psm1', 'psd1'}  # PowerShell file extensions
-maxFileSize = 16 * 1024 * 1024  # 16MB max file size
+upload_folder = 'uploads'
+allowed_file_types = {'ps1', 'psm1', 'psd1'}  # PowerShell file extensions
+max_file_size = 16 * 1024 * 1024  # 16MB max file size
 
 # Set upload folder and file size limit
-app.config['uploadFolder'] = uploadFolder
-app.config['maxFileSize'] = maxFileSize
+app.config['upload_folder'] = upload_folder
+app.config['max_file_size'] = max_file_size
 
 # Feature toggle configuration
 def is_feature_enabled(feature_name):
@@ -77,34 +77,34 @@ def is_feature_enabled(feature_name):
     return os.environ.get(env_var, 'false').lower() == 'true'
 
 # Create upload directory if it doesn't exist
-os.makedirs(uploadFolder, exist_ok=True)
+os.makedirs(upload_folder, exist_ok=True)
 
 
-def allowedFile(filename):
+def allowed_file(filename):
 # Check if uploaded file is accepted type
 
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in allowedFileTypes
+           filename.rsplit('.', 1)[1].lower() in allowed_file_types
 
 
-def getCodingStandards():
+def get_coding_standards():
 # Retrieve coding standards
     try:
         # Create blob service client using connection string
-        blobServiceClient = BlobServiceClient.from_connection_string(
-            storageConnectionString
+        blob_service_client = BlobServiceClient.from_connection_string(
+            storage_connection_string
         )
         
         # Get reference to the standards container and blob
-        blobClient = blobServiceClient.get_blob_client(
+        blob_client = blob_service_client.get_blob_client(
             container="powershell-standards", 
             blob="TestCodingStandards.txt"
         )
         
         # Download and return the content
-        codingStandards = blobClient.download_blob().readall().decode('utf-8')
+        coding_standards = blob_client.download_blob().readall().decode('utf-8')
         logger.info("Successfully retrieved coding standards from blob storage")
-        return codingStandards
+        return coding_standards
         
     except Exception as e:
         logger.error(f"Error retrieving coding standards from blob: {str(e)}")
@@ -125,8 +125,8 @@ def review_powershell_code(code_content, standards):
     try:
         # Initialize OpenAI client
         client = AzureOpenAI(
-            azure_endpoint=openAIEndpoint,
-            api_key=openAIKey,
+            azure_endpoint=open_ai_endpoint,
+            api_key=open_ai_key,
             api_version="2025-01-01-preview"
         )
         
@@ -175,8 +175,8 @@ def review_powershell_code(code_content, standards):
             """
         
         # Send request to OpenAI
-        aiResponse = client.chat.completions.create(
-            model=openAIDeploymentName,
+        ai_response = client.chat.completions.create(
+            model=open_ai_deployment_name,
             messages=[
                 {"role": "system", "content": "You are a PowerShell code reviewer expert."},
                 {"role": "user", "content": prompt}
@@ -186,7 +186,7 @@ def review_powershell_code(code_content, standards):
         )
         
         logger.info("Successfully got review from Azure OpenAI")
-        return aiResponse.choices[0].message.content
+        return ai_response.choices[0].message.content
         
     except Exception as e:
         logger.error(f"Error calling Azure OpenAI: {str(e)}")
@@ -239,7 +239,7 @@ def upload_file():
         return redirect(url_for('index'))
     
     # Check if file type is allowed
-    if not allowedFile(file.filename):
+    if not allowed_file(file.filename):
         logger.warning(f"Invalid file type uploaded: {file.filename}")
         flash('Invalid file type. Please upload PowerShell files (.ps1, .psm1, .psd1)', 'error')
         return redirect(url_for('index'))
@@ -250,7 +250,7 @@ def upload_file():
         logger.info(f"Successfully read file: {file.filename}, size: {len(file_content)} characters")
         
         # Get coding standards (from Azure Storage or local file)
-        standards = getCodingStandards()
+        standards = get_coding_standards()
         
         # Send code for review (using Azure OpenAI or mock review)
         logger.info("Starting code review process")
@@ -280,8 +280,8 @@ def health_check():
     
     health_status = {
         'status': 'healthy',
-        'has_openai_config': bool(openAIEndpoint and openAIKey),
-        'has_storage_config': bool(storageConnectionString),
+        'has_openai_config': bool(open_ai_endpoint and open_ai_key),
+        'has_storage_config': bool(storage_connection_string),
         'has_monitoring': bool(os.environ.get('APPLICATIONINSIGHTS_CONNECTION_STRING')),
         'enhanced_analysis_enabled': is_feature_enabled('enhanced_analysis')
 
