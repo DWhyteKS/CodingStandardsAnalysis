@@ -33,6 +33,7 @@ def test_upload_no_file(client):
 
 # Function tests  
 def test_allowed_file_ps1():
+
     # """Test .ps1 files are allowed"""
     """Test .py files are allowed"""
     # assert allowed_file('test.ps1') == True

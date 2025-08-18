@@ -63,8 +63,10 @@ open_ai_deployment_name = os.environ.get('openAIDeploymentName', '')
 
 # File upload settings
 upload_folder = 'uploads'
+
 # allowed_file_types = {'ps1', 'psm1', 'psd1'}  # PowerShell file extensions
 allowed_file_types = {'py'}
+
 max_file_size = 16 * 1024 * 1024  # 16MB max file size
 
 # Set upload folder and file size limit
