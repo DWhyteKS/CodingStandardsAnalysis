@@ -101,7 +101,7 @@ def get_coding_standards():
         # Get reference to the standards container and blob
         blob_client = blob_service_client.get_blob_client(
             container="powershell-standards", 
-            blob="TestCodingStandards.txt"
+            blob="TestPythonCodingStandards.txt"
         )
         
         # Download and return the content
@@ -136,12 +136,12 @@ def review_powershell_code(code_content, standards):
         if is_feature_enabled('enhanced_analysis'):
             logger.info("Using enhanced analysis mode")
             prompt = f"""
-            Please provide a comprehensive PowerShell code review with detailed analysis:
+            Please provide a comprehensive Python code review with detailed analysis:
             
             CODING STANDARDS:
             {standards}
             
-            POWERSHELL CODE TO REVIEW:
+            PYTHON CODE TO REVIEW:
             {code_content}
             
             Please provide:
@@ -159,12 +159,12 @@ def review_powershell_code(code_content, standards):
         else:
             logger.info("Using standard analysis mode")
             prompt = f"""
-            Please review the following PowerShell code against these coding standards:
+            Please review the following Python code against these coding standards:
             
             CODING STANDARDS:
             {standards}
             
-            POWERSHELL CODE TO REVIEW:
+            PYTHON CODE TO REVIEW:
             {code_content}
             
             Please provide:
