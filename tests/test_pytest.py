@@ -34,16 +34,16 @@ def test_upload_no_file(client):
 # Function tests  
 def test_allowed_file_ps1():
 
-    """Test .ps1 files are allowed"""
-    # """Test .py files are allowed"""
-    assert allowed_file('test.ps1') == True
-    # assert allowed_file('test.py') == True
+    # """Test .ps1 files are allowed"""
+    """Test .py files are allowed"""
+    # assert allowed_file('test.ps1') == True
+    assert allowed_file('test.py') == True
 
 def test_allowed_file_psm1():
-    """Test .psm1 files are allowed"""
-    # """Test .ps1 files are not allowed"""
-    assert allowed_file('test.psm1') == True
-    # assert allowed_file('test.ps1') == False
+    # """Test .psm1 files are allowed"""
+    """Test .ps1 files are not allowed"""
+    # assert allowed_file('test.psm1') == True
+    assert allowed_file('test.ps1') == False
 
 
 def test_allowed_file_txt_not_allowed():

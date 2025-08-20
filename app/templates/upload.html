@@ -12,10 +12,10 @@
     <div class="container">
         <!-- Page header -->
         <header>
-            <h1>PowerShell Code Reviewer</h1>
-            <!-- <h1>Python Code Reviewer</h1> -->
-            <p>Upload your PowerShell files for automated code review against coding standards</p>
-            <!-- <p>Upload your Python files for automated code review against coding standards</p> -->
+            <!-- <h1>PowerShell Code Reviewer</h1> -->
+            <h1>Python Code Reviewer</h1>
+            <!-- <p>Upload your PowerShell files for automated code review against coding standards</p> -->
+            <p>Upload your Python files for automated code review against coding standards</p>
         </header>
 
         <!-- Main content area -->
@@ -44,18 +44,18 @@
             - enctype="multipart/form-data" required for file uploads
             -->
             <div class="upload-section">
-                <h2>Upload PowerShell File</h2>
-                <!-- <h2>Upload Python File</h2> -->
+                <!-- <h2>Upload PowerShell File</h2> -->
+                <h2>Upload Python File</h2>
                 <form action="/upload" method="post" enctype="multipart/form-data">
                     
                     <!-- File input field -->
                     <div class="form-group">
-                        <label for="file">Choose PowerShell file (.ps1, .psm1, .psd1):</label>
-                        <!-- <label for="file">Choose Python file (.py):</label> -->
+                        <!-- <label for="file">Choose PowerShell file (.ps1, .psm1, .psd1):</label> -->
+                        <label for="file">Choose Python file (.py):</label>
                         <input type="file" 
                                id="file" 
                                name="file"                             
-                               accept=".ps1,.psm1,.psd1"
+                               accept=".py"
                                required>
                         <small>Maximum file size: 16MB</small>
                     </div>
@@ -103,8 +103,8 @@
 
         <!-- Page footer -->
         <footer>
-            <p>&copy; PowerShell Code Reviewer |
-            <!-- <p>&copy; Python Code Reviewer |  -->
+            <!-- <p>&copy; PowerShell Code Reviewer | -->
+            <p>&copy; Python Code Reviewer | 
                <a href="/health">System Status</a>
             </p>
         </footer>
