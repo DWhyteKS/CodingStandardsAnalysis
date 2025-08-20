@@ -64,8 +64,8 @@ open_ai_deployment_name = os.environ.get('openAIDeploymentName', '')
 # File upload settings
 upload_folder = 'uploads'
 
-# allowed_file_types = {'ps1', 'psm1', 'psd1'}  # PowerShell file extensions
-allowed_file_types = {'py'}
+allowed_file_types = {'ps1', 'psm1', 'psd1'}  # PowerShell file extensions
+# allowed_file_types = {'py'}
 
 max_file_size = 16 * 1024 * 1024  # 16MB max file size
 
@@ -181,8 +181,8 @@ def review_powershell_code(code_content, standards):
         ai_response = client.chat.completions.create(
             model=open_ai_deployment_name,
             messages=[
-                # {"role": "system", "content": "You are a PowerShell code reviewer expert."},
-                {"role": "system", "content": "You are a Python code reviewer expert."},
+                {"role": "system", "content": "You are a PowerShell code reviewer expert."},
+                # {"role": "system", "content": "You are a Python code reviewer expert."},
                 {"role": "user", "content": prompt}
             ],
             max_tokens=1500,
